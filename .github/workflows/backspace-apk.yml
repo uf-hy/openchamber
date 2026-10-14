@@ -41,6 +41,11 @@ jobs:
               if node.attrib.get('name') in ('app_name', 'title_activity_main'):
                   node.text = 'OpenChamber Backspace Test'
           tree.write(p, encoding='utf-8', xml_declaration=True)
+          # The upstream Firebase client is registered to the production package.
+          # This isolated terminal test build does not use push notifications.
+          p = Path('packages/mobile/android/app/google-services.json')
+          if p.exists():
+              p.rename(p.with_suffix('.json.unused'))
           PY
       - name: Build patched Android APK
         env:
