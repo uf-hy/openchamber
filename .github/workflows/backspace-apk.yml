@@ -46,10 +46,17 @@ jobs:
           p = Path('packages/mobile/android/app/google-services.json')
           if p.exists():
               p.rename(p.with_suffix('.json.unused'))
+          p = Path('packages/ui/src/apps/useNativePushRegistration.ts')
+          text = p.read_text()
+          old = 'if (!enabled || !nativeNotificationsEnabled || !isNativePushPlatform()) {'
+          assert text.count(old) == 1
+          p.write_text(text.replace(old, "if (import.meta.env.VITE_DISABLE_NATIVE_PUSH === 'true' || !enabled || !nativeNotificationsEnabled || !isNativePushPlatform()) {"))
           PY
       - name: Build patched Android APK
         env:
           OPENCHAMBER_ANDROID_VERSION_NAME: '2.3.2-backspace-0f1869f'
+          OPENCHAMBER_ANDROID_VERSION_CODE: '2'
+          VITE_DISABLE_NATIVE_PUSH: 'true'
         run: bun run mobile:build:android:debug
       - name: Package APK and checksum
         run: |
